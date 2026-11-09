@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  api:
+    image: python:3.11-alpine
+    container_name: api_desafio_extra
+    command: python -c "import time; print('API do Desafio rodando perfeitamente!'); time.sleep(10)"
+    environment:
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASS=senha_secreta
+    depends_on:
+      db:
+        # Garante que a API só inicia se o banco passar no teste de saúde (healthcheck)
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    container_name: db_desafio_extra
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=senha_secreta
+      - POSTGRES_DB=orion_extra_db
+    volumes:
+      - dados_extra:/var/lib/postgresql/data
+    # Teste de saúde que verifica se o banco de dados está aceitando conexões
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orion_extra_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Interface Visual para gerenciar o Banco de Dados via navegador
+  adminer:
+    image: adminer:latest
+    container_name: painel_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  dados_extra:
