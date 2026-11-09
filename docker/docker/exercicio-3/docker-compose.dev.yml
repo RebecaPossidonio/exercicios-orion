@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  api:
+    image: python:3.11-alpine
+    container_name: api_dev
+    command: python -c "print('Rodando em ambiente de DESENVOLVIMENTO')"
+    environment:
+      - AMBIENTE=desenvolvimento
