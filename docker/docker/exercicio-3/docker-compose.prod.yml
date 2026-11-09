@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  api:
+    image: python:3.11-alpine
+    container_name: api_prod
+    command: python -c "print('Rodando em ambiente de PRODUCAO com estabilidade')"
+    environment:
+      - AMBIENTE=producao
+    # Em produção, adicionamos políticas de reinicialização automática se o app cair
+    restart: always
