@@ -2,20 +2,11 @@ version: '3.8'
 
 services:
   api:
-    image: python:3.11-alpine
+    # Constrói a imagem real da API que se conecta ao banco de dados de verdade
+    build: 
+      context: ../exercicio-2
+      dockerfile: Dockerfile
     container_name: api_desafio_extra
-    # Cria uma API web instantânea que responde na porta 8000 com a rota de healthcheck exigida
-    command: python -c "
-from http.server import BaseHTTPRequestHandler, HTTPServer
-class H(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        if self.path == '/health': self.wfile.write(b'{\"status\": \"ok\"}')
-        else: self.wfile.write(b'{\"status\": \"running\"}')
-HTTPServer(('0.0.0.0', 8000), H).serve_forever()
-    "
     ports:
       - "8000:8000"
     environment:
