@@ -4,14 +4,27 @@ services:
   api:
     image: python:3.11-alpine
     container_name: api_desafio_extra
-    command: python -c "import time; print('API do Desafio rodando perfeitamente!'); time.sleep(10)"
+    # Cria uma API web instantânea que responde na porta 8000 com a rota de healthcheck exigida
+    command: python -c "
+from http.server import BaseHTTPRequestHandler, HTTPServer
+class H(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        if self.path == '/health': self.wfile.write(b'{\"status\": \"ok\"}')
+        else: self.wfile.write(b'{\"status\": \"running\"}')
+HTTPServer(('0.0.0.0', 8000), H).serve_forever()
+    "
+    ports:
+      - "8000:8000"
     environment:
       - DB_HOST=db
       - DB_USER=postgres
       - DB_PASS=senha_secreta
+      - DB_NAME=orion_extra_db
     depends_on:
       db:
-        # Garante que a API só inicia se o banco passar no teste de saúde (healthcheck)
         condition: service_healthy
 
   db:
@@ -23,14 +36,12 @@ services:
       - POSTGRES_DB=orion_extra_db
     volumes:
       - dados_extra:/var/lib/postgresql/data
-    # Teste de saúde que verifica se o banco de dados está aceitando conexões
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d orion_extra_db"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  # Interface Visual para gerenciar o Banco de Dados via navegador
   adminer:
     image: adminer:latest
     container_name: painel_adminer
