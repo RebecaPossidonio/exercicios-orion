@@ -2,10 +2,31 @@ version: '3.8'
 
 services:
   api:
-    image: python:3.11-alpine
-    container_name: api_prod
-    command: python -c "print('Rodando em ambiente de PRODUCAO com estabilidade')"
+    build: 
+      context: ../exercicio-2
+      dockerfile: Dockerfile
+    container_name: api_exercicio3_prod
     environment:
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASS=senha123
+      - DB_NAME=orion_db
       - AMBIENTE=producao
-    # Em produção, adicionamos políticas de reinicialização automática se o app cair
+    # Em produção NÃO usamos volumes de código-fonte local
     restart: always
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: db_exercicio3_prod
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=senha123
+      - POSTGRES_DB=orion_db
+    volumes:
+      - dados_banco_prod:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  dados_banco_prod:
