@@ -1,8 +1,7 @@
 version: '3.8'
-
 services:
   app:
-    # Diz ao Compose para construir a imagem usando o Dockerfile da pasta
     build: .
-    # Define o nome amigável para o contêiner
     container_name: hello_docker_python
+    ports:
+      - "3000:3000"
